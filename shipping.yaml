@@ -23,8 +23,8 @@
 
   - name: downloading the shipping file
     ansible.builtin.get_url:
-    url: https://roboshop-builds.s3.amazonaws.com/shipping.zip
-    dest: /tmp
+      url: https://roboshop-builds.s3.amazonaws.com/shipping.zip
+      dest: /tmp
 
   - name: unzip the downloaded shipping file
     ansible.builtin.unarchive:      
