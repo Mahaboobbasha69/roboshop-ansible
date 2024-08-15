@@ -23,11 +23,11 @@
        url: https://roboshop-builds.s3.amazonaws.com/web.zip
        dest: /tmp
 
-  - name: Extract the frontend content
-     ansible.builtin.unarchive:
-        src: /usr/share/nginx/html
-        dest: /tmp/web.zip
-        remote_src: yes # file is already present in romote system
+  - name: Extract application
+    ansible.builtin.unarchive:
+      src: /tmp/web.zip
+      dest: /usr/share/nginx/html
+      remote_src: yes # file is already present in romote system
 
   - name: copy roboshop configuration
     ansible.builtin.copy:
