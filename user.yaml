@@ -1,0 +1,83 @@
+- name: configer the User
+  hosts: user
+  become: yes
+  tasks:
+  - name: disable & enable nodejs
+    ansible.builtin.shell: dnf module disable nodejs -y ; dnf module enable nodejs:18 -y
+
+  - name: Install NodeJS
+    ansible.builtin.package:
+     name: install
+     state: present
+
+  - name: Add application User
+    ansible.builtin.user:
+     name: roboshop
+
+  - name: create app directory
+    ansible.builtin.file:
+      path: /app
+      state: directory   
+
+  - name: Download the application code to created app directory.
+    ansible.builtin.get_url:
+     url: https://roboshop-builds.s3.amazonaws.com/user.zip
+      dest: /tmp
+
+  - name: unzip the downloaded file
+    anasible.builtin.unarchive:
+       src: /tmp/user.zip
+       dest: /app
+       remote_src: yes
+
+  - name: download the dependency's
+    anasible.builtin.package:
+     name: npm 
+     state: present
+
+  - name: cpoty User Service
+    ansible.builtin.copy:
+      src: user.service
+      dest: /etc/systemd/system/user.service
+
+  - name: deamon realod and start
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+
+  - name: start & enable user service
+    anasible.builtin.service:
+      name: user
+      state: started
+      enabled: yes
+
+  # let's start after the data is loaded
+
+  - name: Copy mongodb repo
+    ansible.builtin.copy:
+      src: mongodb.repo
+      dest: /etc/yum.repos.d/mongodb.repo
+
+  - name: install mongodb
+    anasible.builtin.package:
+      name: mongodb-org-shell
+      state: present
+
+   - name: get the categories count
+    ansible.builtin.command:  mongo --host mongodb.bashadevopsaws.online --quiet --eval 'db = db.getSiblingDB("user"); db.user.count()'
+    register: user_count
+
+  # - name: print the count
+  #   ansible.builtin.debug:
+  #     msg: "user count: {{user_count}}"
+
+  - name: load user data
+    ansible.builtin.command: mongo --host mongodb.bashadevopsaws.online < /app/schema/user.js
+    when: user_count.stdout == "0" # keep double quotes
+
+  - name: start and enable user
+    ansible.builtin.service:
+      name: user
+      state: restarted
+      enabled: yes    
+          
+
