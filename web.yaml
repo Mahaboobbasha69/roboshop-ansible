@@ -7,11 +7,11 @@
       name: nginx
       state: present
 
-  - name: Start & Enable Nginx service
-    ansible.builtin.service:
-     name: nginx
-     state: started
-     enabled: yes
+  # - name: Start & Enable Nginx service
+  #   ansible.builtin.service:
+  #    name: nginx
+  #    state: started
+  #    enabled: yes
 
   - name: Recursively remove directory
     ansible.builtin.file:
@@ -37,4 +37,5 @@
   - name: Restart Nginx Service to load the changes of the configuration
     ansible.builtin.service:
       name: nginx
-      state: restarted          
+      state: restarted
+      enabled: yes          
